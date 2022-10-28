@@ -10,6 +10,11 @@ namespace DeskBooker.Core.Processor
 
         public DeckBookingResult BookDesk(DeskBookingRequest request)
         {
+            if (request is null)
+            {
+                throw new ArgumentNullException(nameof(request));
+            }
+
             return new DeckBookingResult
             {
                 FirstName = request.FirstName,
