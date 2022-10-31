@@ -8,16 +8,13 @@ namespace DeskBooker.Core.Processor
     public class DeskBookingRequestProcessorTests
     {
         private readonly Mock<IDeskBookingRepository> _deskBookingRepositoryMock;
+        private readonly Mock<IDeskRepository> _deskRepositoryMock;
+        private readonly IList<Desk> _availableDesks;
         private readonly DeskBookingRequestProcessor _processor;
         private readonly DeskBookingRequest _request;
 
         public DeskBookingRequestProcessorTests()
         {
-            _deskBookingRepositoryMock = new Mock<IDeskBookingRepository>();
-
-            _processor = new DeskBookingRequestProcessor(
-                _deskBookingRepositoryMock.Object);
-
             _request = new DeskBookingRequest
             {
                 FirstName = "Thomas",
@@ -25,6 +22,17 @@ namespace DeskBooker.Core.Processor
                 Email = "ThomasHuber@Email.com",
                 Date = new DateTime(2022, 11, 2)
             };
+
+            _availableDesks = new List<Desk>() { new Desk() };
+
+            _deskBookingRepositoryMock = new Mock<IDeskBookingRepository>();
+            _deskRepositoryMock = new Mock<IDeskRepository>();
+            _deskRepositoryMock.Setup(x => x.GetAvailableDesks(_request.Date))
+                .Returns(_availableDesks);
+
+            _processor = new DeskBookingRequestProcessor(
+                _deskBookingRepositoryMock.Object
+                , _deskRepositoryMock.Object);
         }
 
         [Fact]
@@ -46,7 +54,8 @@ namespace DeskBooker.Core.Processor
         [Fact]
         public void ShouldSaveDeskBooking()
         {
-            DeskBooking savedDeskBooking = null;
+            DeskBooking? savedDeskBooking = null;
+
             _deskBookingRepositoryMock.Setup(x => x.Save(It.IsAny<DeskBooking>()))
                 .Callback<DeskBooking>(deskBooking =>
                 {
@@ -57,7 +66,17 @@ namespace DeskBooker.Core.Processor
 
             _deskBookingRepositoryMock.Verify(x => x.Save(It.IsAny<DeskBooking>()), Times.Once);
 
-            TestEndValueWithReturnValue(savedDeskBooking);
+            TestEndValueWithReturnValue<DeskBooking>(savedDeskBooking);
+        }
+
+        [Fact]
+        public void ShouldNotSaveDeskBookingIfNotDeskIsAvailable()
+        {
+            _availableDesks.Clear();
+
+            _processor.BookDesk(_request);
+
+            _deskBookingRepositoryMock.Verify(x => x.Save(It.IsAny<DeskBooking>()), Times.Never);
         }
 
         private void TestEndValueWithReturnValue<T>(T testObject)
