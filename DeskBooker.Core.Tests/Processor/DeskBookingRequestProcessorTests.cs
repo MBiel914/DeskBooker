@@ -1,6 +1,9 @@
 ﻿using DeskBooker.Core.DataInterface;
 using DeskBooker.Core.Domain;
 using Moq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace DeskBooker.Core.Processor

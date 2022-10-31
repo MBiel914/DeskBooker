@@ -1,5 +1,7 @@
 ﻿using DeskBooker.Core.DataInterface;
 using DeskBooker.Core.Domain;
+using System;
+using System.Linq;
 
 namespace DeskBooker.Core.Processor
 {
