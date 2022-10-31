@@ -25,13 +25,18 @@ namespace DeskBooker.Core.Processor
 
             if (availableDesks.Any())
             {
-                _deskBookingRepository.Save(Create<DeskBooking>(request));
+                var availableDesk = availableDesks.First();
+                var deskBooking = Create<DeskBooking>(request);
+
+                deskBooking.DeskId = availableDesk.Id;
+
+                _deskBookingRepository.Save(deskBooking);
             }
 
             return Create<DeskBookingResult>(request);
         }
 
-        private static T Create<T>(DeskBookingRequest request)
+        private static T Create<T>(DeskBookingBase request)
             where T : DeskBookingBase, new()
         {
             return new T
