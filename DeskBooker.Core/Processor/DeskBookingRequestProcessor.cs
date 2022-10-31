@@ -22,6 +22,7 @@ namespace DeskBooker.Core.Processor
             }
 
             var availableDesks = _deskRepository.GetAvailableDesks(request.Date);
+            var result = Create<DeskBookingResult>(request);
 
             if (availableDesks.Any())
             {
@@ -32,8 +33,12 @@ namespace DeskBooker.Core.Processor
 
                 _deskBookingRepository.Save(deskBooking);
             }
+            else
+            {
+                result.Code = DeskBookingResultCode.NoDeskAvailable;
+            }
 
-            return Create<DeskBookingResult>(request);
+            return result;
         }
 
         private static T Create<T>(DeskBookingBase request)

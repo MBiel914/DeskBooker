@@ -92,5 +92,21 @@ namespace DeskBooker.Core.Processor
             Assert.Equal(_request.Email, testObject.Email);
             Assert.Equal(_request.Date, testObject.Date);
         }
+
+        [Theory]
+        [InlineData(DeskBookingResultCode.Success, true)]
+        [InlineData(DeskBookingResultCode.NoDeskAvailable, false)]
+        public void ShouldReeturnExpectedResultCode(
+            DeskBookingResultCode expectedResultCode, bool isDeskAvailable)
+        {
+            if (!isDeskAvailable)
+            {
+                _availableDesks.Clear();
+            }
+
+            var result = _processor.BookDesk(_request);
+
+            Assert.Equal(expectedResultCode, result.Code);
+        }
     }
 }
